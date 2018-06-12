@@ -26,9 +26,10 @@ socket.on('connect',()=>{
             if(chat.length>0){
                 var template=jQuery('#message-template').html();
                 chat.forEach((t)=>{
+                    console.log('dis :- ',t,JSON.parse(localStorage.getItem('userId')))
                 var html=Mustache.render(template,{
                     text:t.message,
-                    from:t.name,
+                    from:(t.fromId == JSON.parse(localStorage.getItem('userId'))) ? 'You' : t.name,
                     createdAt:t.at,
                     sr:(t.name==JSON.parse(localStorage.getItem('user'))['name'])?true:false
                 });
@@ -59,6 +60,7 @@ socket.on('updateUserList',(users)=>{
 
 socket.on('newMsg',(data)=>{
     if(data.ChatRoomId.toString()===localStorage.getItem('chatRoomId')) {
+        console.log(JSON.parse(localStorage.getItem('user'))['name'],localStorage)
         var formattedTime = moment(data.createdAt).format('h:mm a');
         var template = jQuery('#message-template').html();
         var html = Mustache.render(template, {
@@ -77,9 +79,6 @@ socket.on('newMsg',(data)=>{
     }
 
 })
-
-
-
 socket.on('newLocationMsg',(msg)=>{
     var formattedTime=moment(msg.createdAt).format('h:mm a');
     var template=jQuery('#location-message-template').html();
@@ -100,16 +99,17 @@ socket.on('newLocationMsg',(msg)=>{
 })
 
 jQuery('#message-form').on('submit',(e)=>{
-
-    e.preventDefault();
-    $.post("message",{
-        from:JSON.parse(localStorage.getItem('user'))["name"],
-        content:jQuery('[name=message]').val(),
-        fromId:localStorage.getItem('userId'),
-        ChatRoomId:localStorage.getItem('chatRoomId')
-    }, function(data, status){
-        jQuery('[name=message]').val('');
-    },"json");
+  e.preventDefault();
+  //console.log('messageeeee ',jQuery('[name=message]').val().length);
+  if(jQuery('[name=message]').val().length>0){
+    $.post("message", {
+      from: JSON.parse(localStorage.getItem('user'))["name"],
+      content: jQuery('[name=message]').val(),
+      fromId: localStorage.getItem('userId'),
+      ChatRoomId: localStorage.getItem('chatRoomId')
+    }, function (data, status) {
+      jQuery('[name=message]').val('');
+    }, "json");
     // socket.emit('createMsg',{
     //     from:JSON.parse(localStorage.getItem('user'))["name"],
     //     content:jQuery('[name=message]').val(),
@@ -119,19 +119,23 @@ jQuery('#message-form').on('submit',(e)=>{
     //     console.log('message Reached');
     //     jQuery('[name=message]').val('');
     // })
+  }else{
+
+  }
 })
-
-
-
 var locationButton=jQuery('#send-location');
 locationButton.on('click',()=>{
+    debugger
     if(!navigator.geolocation){
         return alert('Geolocation not supported by your browser..');
     }
     locationButton.attr('disabled','disabled');
-    navigator.geolocation.getCurrentPosition((pos)=>{
+    console.log('User->', localStorage.getItem('user').name)
+    console.log(JSON.parse(localStorage.user).name)
+  navigator.geolocation.getCurrentPosition((pos)=>{
         locationButton.removeAttr('disabled');
         socket.emit('createLocationMsg',{
+            from:JSON.parse(localStorage.user).name,
             longitude:pos.coords.longitude,
             latitude:pos.coords.latitude
         })
@@ -139,8 +143,6 @@ locationButton.on('click',()=>{
         alert('unable to fetch location');
     })
 })
-
-
-// document.getElementById('message-form').addEventListener('submit',(e)=>{
-//     e.preventDefault();
-// })
+document.getElementById('message-form').addEventListener('submit',(e)=>{
+    e.preventDefault();
+})

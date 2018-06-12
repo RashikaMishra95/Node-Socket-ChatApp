@@ -56,7 +56,7 @@ module.exports = function (mysql) {
 
     }
     this.getChatsbyRoomId = (roomId ,callback) => {
-        con.query('SELECT cu.name,message,DATE_FORMAT(at,"%h:%i %p") as at FROM `message` as m LEFT JOIN chatuser as cu on m.fromId=cu.id where' +
+        con.query('SELECT m.fromId,cu.name,message,DATE_FORMAT(at,"%h:%i %p") as at FROM `message` as m LEFT JOIN chatuser as cu on m.fromId=cu.id where' +
             ' chatRoomId='+roomId.roomId+'  ORDER BY `m`.`at`  ASC', (err, result) => {
             callback(result);
         });

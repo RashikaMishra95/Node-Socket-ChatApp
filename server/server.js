@@ -8,7 +8,7 @@ var {generateMsg,generateLocationMsg,generateMsgChat}=require('./utils/message')
 const {isRealString}=require('./utils/validation.js');
 const {Users}=require('./utils/users');
 const PublicPath=path.join(__dirname,'../public');
-const port=process.env.PORT||3000;
+const port=process.env.PORT|| 5555;
 var app=express();
 var server=http.createServer(app);
 var io=socketIO(server);
@@ -52,8 +52,10 @@ io.on('connection',(socket)=>{
 
     })
 
-app.post('/message',(req,res)=>{
+    app.post('/message',(req,res)=>{
         insertMsg(req.body.ChatRoomId,req.body.fromId,req.body.content,(data)=>   {
+          var user=users.getUser(socket.id);
+            console.log('called maybe ',data,user,req.body.from)
             io.emit('newMsg',generateMsgChat(req.body.from,req.body.content,req.body.ChatRoomId));
 
             res.send({status:0});
@@ -66,12 +68,11 @@ app.post('/message',(req,res)=>{
             insertMsg(newMsg.ChatRoomId,newMsg.fromId,newMsg.content,(data)=>   {
                 io.emit('newMsg',generateMsg(newMsg.from,newMsg.content));
             });
-
         }
        callback();
     })
     socket.on('createLocationMsg',(coords)=>{
-        io.emit('newLocationMsg',generateLocationMsg('Admin',coords.latitude,coords.longitude));
+      io.emit('newLocationMsg',generateLocationMsg(coords.from,coords.latitude,coords.longitude));
     })
 });
 server.listen(port,()=>{
