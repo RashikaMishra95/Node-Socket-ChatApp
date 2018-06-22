@@ -64,7 +64,7 @@ io.on('connection',(socket)=>{
     socket.on('createMsg',(newMsg,callback)=>{
         var user=users.getUser(socket.id);
         if(user && isRealString(newMsg.content)){
-            console.log(newMsg);
+            console.log("New Msg :",newMsg);
             insertMsg(newMsg.ChatRoomId,newMsg.fromId,newMsg.content,(data)=>   {
                 io.emit('newMsg',generateMsg(newMsg.from,newMsg.content));
             });
@@ -72,7 +72,10 @@ io.on('connection',(socket)=>{
        callback();
     })
     socket.on('createLocationMsg',(coords)=>{
-      io.emit('newLocationMsg',generateLocationMsg(coords.from,coords.latitude,coords.longitude));
+        console.log(coords)
+        // if(coords.chatRoomId && isRealString(newMsg.content)) {
+            io.emit('newLocationMsg', generateLocationMsg(coords.from, coords.latitude, coords.longitude,coords.chatRoomId));
+        // }
     })
 });
 server.listen(port,()=>{

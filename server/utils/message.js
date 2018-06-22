@@ -16,11 +16,13 @@ var generateMsgChat=(from,content,ChatRoomId)=>{
     };
 };
 
-var generateLocationMsg=(from,latitude,longitude)=>{
+var generateLocationMsg=(from,latitude,longitude,chatRoomId)=>{
+    console.log('called ',chatRoomId);
     return {
         from,
         url:`http://www.google.com/maps?q=${latitude},${longitude}`,
-        createdAt : moment().valueOf()
+        createdAt : moment().valueOf(),
+        chatRoomId:chatRoomId,
     };
 };
 

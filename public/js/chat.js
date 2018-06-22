@@ -87,8 +87,14 @@ socket.on('newLocationMsg',(msg)=>{
         createdAt:formattedTime,
         url:msg.url
     })
-    jQuery('#messages').append(html);
-    scrollToBottom();
+    const ChatRoomId = localStorage.getItem('chatRoomId')
+    console.log("CRI---", ChatRoomId,msg, msg.ChatRoomId);
+    if(ChatRoomId === msg.chatRoomId)
+    {
+        jQuery('#messages').append(html);
+        scrollToBottom();
+    }
+
     // var formattedTime=moment(msg.createdAt).format('h:mm a');
     // var li=jQuery('<li></li>');
     // var a=jQuery('<a target="_blank">My Current Location</a>')
@@ -125,7 +131,6 @@ jQuery('#message-form').on('submit',(e)=>{
 })
 var locationButton=jQuery('#send-location');
 locationButton.on('click',()=>{
-    debugger
     if(!navigator.geolocation){
         return alert('Geolocation not supported by your browser..');
     }
@@ -137,7 +142,8 @@ locationButton.on('click',()=>{
         socket.emit('createLocationMsg',{
             from:JSON.parse(localStorage.user).name,
             longitude:pos.coords.longitude,
-            latitude:pos.coords.latitude
+            latitude:pos.coords.latitude,
+            chatRoomId:localStorage.getItem('chatRoomId'),
         })
     },()=>{
         alert('unable to fetch location');
